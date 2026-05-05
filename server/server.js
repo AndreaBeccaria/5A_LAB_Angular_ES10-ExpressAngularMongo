@@ -5,8 +5,8 @@ const bodyParser = require("body-parser");
 const fs = require("fs");
 const HTTPS = require("https");
 const cors = require("cors");
-//const tokenAdministration = require("./tokenAdministration");
-//const mongoFunctions = require("./mongoFunctions");
+const tokenAdministration = require("./tokenAdministration");
+const mongoFunctions = require("./mongoFunctions");
 
 // ---- Costanti di configurazione ----
 const PORT = 8888;
@@ -88,7 +88,15 @@ function checkToken(req, res, next) {
 //  Risposta OK:    { msg: "Login OK", token: "eyJhbGci..." }
 // ============================================================
 app.post("/api/login", (req, res) => {
-    
+    const query = { user: req.body.username };
+    mongoFunctions.findLogin(req,DB,C_USERS,query,(err,data)=>{
+        if(err.codeErr == -1){  // Login OK
+            tokenAdministration.createToken(data);
+            res.send({ msg: "Login OK", token: tokenAdministration.token });
+        }else{  // Login fallito
+            sendError(res, err.codeErr, err.message);
+        }
+    });
 });
 
 // ============================================================
