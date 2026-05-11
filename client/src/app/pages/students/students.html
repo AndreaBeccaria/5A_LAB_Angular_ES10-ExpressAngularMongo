@@ -1,1 +1,146 @@
-<p>students works!</p>
+<div class="page-wrapper">
+  <!-- Navbar -->
+  <nav class="navbar">
+    <span class="navbar-brand">🎓 Gestione Studenti</span>
+    <div class="navbar-right">
+      <button class="btn-stats" (click)="caricaStatistiche()">
+        📊 {{ showStats ? 'Nascondi' : 'Statistiche città' }}
+      </button>
+      <button class="btn-logout" (click)="logout()">Esci</button>
+    </div>
+  </nav>
+
+  <main class="main-content">
+
+    <!-- Messaggi -->
+    @if (successMessage) {
+    <div class="alert-success">✅ {{ successMessage }}</div>
+    }
+    @if (errorMessage) {
+    <div class="alert-error">⚠️ {{ errorMessage }}</div>
+    }
+
+    <!-- Statistiche aggregate -->
+    @if (showStats) {
+    <div class="stats-card">
+      <h3>📊 Studenti per città (aggregate)</h3>
+      <div class="stats-grid">
+        @for (stat of statistiche; track stat._id) {
+    <div class="stat-item">
+      <span class="stat-city">{{ stat._id || 'N/D' }}</span>
+      <span class="stat-count">{{ stat.totale }}</span>
+    </div>
+    }
+    </div>
+  </div>
+    }
+
+    <!-- Barra azioni -->
+    <div class="toolbar">
+      <div class="search-group">
+        <input
+          type="text"
+          [(ngModel)]="filtroCognome"
+          placeholder="Cerca per cognome..."
+          class="search-input"
+          (keyup.enter)="cerca()"
+        />
+        <button class="btn-secondary" (click)="cerca()">🔍 Cerca</button>
+        <button class="btn-secondary" (click)="loadAll()">↺ Tutti</button>
+      </div>
+      <button class="btn-primary" (click)="nuovoStudente()">➕ Nuovo studente</button>
+    </div>
+
+    <!-- Form inserimento / modifica -->
+    @if (showForm) {
+    <div class="form-card">
+      <h3>{{ isEditing ? '✏️ Modifica studente' : '➕ Nuovo studente' }}</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nome *</label>
+            <input type="text" [(ngModel)]="formData.nome" placeholder="Nome" />
+          </div>
+          <div class="form-group">
+            <label>Cognome *</label>
+            <input type="text" [(ngModel)]="formData.cognome" placeholder="Cognome" />
+          </div>
+          <div class="form-group">
+            <label>Età</label>
+            <input type="number" [(ngModel)]="formData.eta" placeholder="Età" min="0" />
+          </div>
+          <div class="form-group">
+            <label>Via</label>
+            <input type="text" [(ngModel)]="formData.indirizzo!.via" placeholder="Via e numero" />
+          </div>
+          <div class="form-group">
+            <label>Città</label>
+            <input type="text" [(ngModel)]="formData.indirizzo!['citta']" placeholder="Città" />
+          </div>
+          <div class="form-group">
+            <label>CAP</label>
+            <input type="text" [(ngModel)]="formData.indirizzo!.CAP" placeholder="CAP" />
+          </div>
+          <div class="form-group full-width">
+            <label>Interessi (separati da virgola)</label>
+            <input type="text" [(ngModel)]="interessiString" placeholder="es. musica, sport" />
+          </div>
+          <div class="form-group full-width">
+            <label>Corsi (formato: NomeCorso:voto, NomeCorso2:voto2)</label>
+            <input type="text" [(ngModel)]="corsiString" placeholder="es. Matematica:28, Fisica:30" />
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn-primary" (click)="salva()">💾 Salva</button>
+          <button class="btn-secondary" (click)="annulla()">Annulla</button>
+        </div>
+      </div>
+    }
+
+    <!-- Lista studenti a card -->
+    @if (loading) {
+    <div class="loading">Caricamento in corso...</div>
+    } @else if (students.length === 0) {
+    <div class="empty-state">Nessuno studente trovato.</div>
+    } @else {
+    <div class="students-grid">
+      @for (s of students; track s._id) {
+    <div class="student-card">
+      <div class="card-header">
+        <span class="student-name">{{ s.nome }} {{ s.cognome }}</span>
+        <span class="student-age">{{ s.eta }} anni</span>
+      </div>
+      <div class="card-body">
+        @if (s.indirizzo) {
+        <p class="card-info">
+          📍 {{ s.indirizzo.via }}, {{ s.indirizzo.citta }}
+        @if (s.indirizzo.CAP) {
+        <span>({{ s.indirizzo.CAP }})</span>
+        }
+        </p>
+        }
+        @if (s.interessi && s.interessi.length > 0) {
+        <div class="interessi-list">
+          @for (interesse of s.interessi; track interesse) {
+        <span class="badge-interesse">{{ interesse }}</span>
+        }
+        </div>
+        }
+        @if (s.corsi && s.corsi.length > 0) {
+        <div class="corsi-list">
+          @for (corso of s.corsi; track corso.nome) {
+        <span class="badge-corso">{{ corso.nome }} <strong>{{ corso.voto }}</strong></span>
+        }
+        </div>
+        }
+      </div>
+      <div class="card-footer">
+        <button class="btn-edit" (click)="modificaStudente(s)">✏️ Modifica</button>
+        <button class="btn-delete" (click)="elimina(s)">🗑️ Elimina</button>
+      </div>
+    </div>
+    }
+    </div>
+    }
+  </main>
+</div>
+

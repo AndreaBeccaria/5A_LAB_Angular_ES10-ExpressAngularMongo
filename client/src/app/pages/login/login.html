@@ -1,1 +1,52 @@
-<p>login works!</p>
+<!--pastebin.com/pZEsSB8X-->
+<div class="login-wrapper">
+  <div class="login-card">
+    <div class="login-header">
+      <h1>🎓 Gestione Studenti</h1>
+      <p>Accedi con le tue credenziali</p>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          [(ngModel)]="credentials.username"
+          required
+          placeholder="Inserisci username"
+          autocomplete="username"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          [(ngModel)]="credentials.password"
+          required
+          placeholder="••••••••"
+          autocomplete="current-password"
+        />
+      </div>
+
+      @if (errorMessage) {
+      <div class="alert-error">
+        ⚠️ {{ errorMessage }}
+      </div>
+      }
+
+      <button type="submit" class="btn-login" [disabled]="loading || loginForm.invalid">
+        @if (loading) {
+        <span>Accesso in corso...</span>
+        } @else {
+        <span>Accedi</span>
+        }
+      </button>
+    </form>
+  </div>
+</div>
+

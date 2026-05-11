@@ -88,6 +88,7 @@ function checkToken(req, res, next) {
 //  Risposta OK:    { msg: "Login OK", token: "eyJhbGci..." }
 // ============================================================
 app.post("/api/login", (req, res) => {
+    console.log("Start login");
     const query = { user: req.body.username };
     mongoFunctions.findLogin(req,DB,C_USERS,query,(err,data)=>{
         if(err.codeErr == -1){  // Login OK
@@ -109,7 +110,12 @@ app.post("/api/login", (req, res) => {
 //  È l'unica route in GET perché non riceve parametri dal client.
 // ----------------------------------------------------------
 app.get("/api/students", checkToken, (req, res) => {
-    
+    mongoFunctions.find(DB,C_STUDENTS,{},(err,data)=>{
+        if(err.codeErr == -1)
+            res.send({data:data, newToken:req.newToken});
+        else
+            sendError(res,err.codeErr,err.message);
+    });
 });
 
 // ----------------------------------------------------------
